@@ -9,8 +9,6 @@
 # processname: java
 # config: /etc/sysconfig/minecraft_server
 
-PATH=/usr/bin:/sbin:/bin:/usr/sbin
-
 NAME=$(basename $0)
 
 JAVA=java
@@ -24,7 +22,6 @@ SYSTEMCTL_SKIP_REDIRECT=1
 [ -z "$MINECRAFT_USER" ] && MINECRAFT_USER=root
 [ -z "$MINECRAFT_SHUTDOWN_WARN" -o "$MINECRAFT_SHUTDOWN_WARN" = "0" ] && MINECRAFT_SHUTDOWN_WARN=1
 
-# these environment variables are mainly for mcwrapper
 export PATH JAVA TAR JAR
 export MC_WRAPPER_PID MC_SERVER_PID
 export MINECRAFT_HOME MINECRAFT_USER
@@ -166,7 +163,7 @@ case "$1" in
     ;;
     *)
         echo $"Usage: $0 {start|stop|status|restart|force-reload}"
-        exit 1
+        exit -1
 esac
 
 exit $RETVAL
