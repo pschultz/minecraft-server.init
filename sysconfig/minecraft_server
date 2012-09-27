@@ -1,6 +1,6 @@
 # These environment variables are mainly used by mcwrapper
 
-MINECRAFT_MOTD=A Minecraft Server
+MINECRAFT_MOTD="A Minecraft Server"
 
 # How long to wait in seconds after issuing a warning message
 # to players on the server and before actually shutting it down
