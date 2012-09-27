@@ -19,9 +19,9 @@ JAR=/opt/minecraft/minecraft_server.jar
 # Path to mcwrapper (or whatever you named it)
 MC_WRAPPER=mcwrapper
 
-# Pidfile locations
-MC_WRAPPER_PID=/var/run/mcwrapper.pid
-MC_SERVER_PID=/var/run/minecraft.pid
+# Pidfile locations. These files have to be creatable and writable by MINECRAFT_USER
+MC_WRAPPER_PID="$MINECRAFT_HOME/mcwrapper.pid"
+MC_SERVER_PID="$MINECRAFT_HOME/minecraft.pid"
 
 # Where to store backup files
 # Please note that backups are not implemented in the init script.
