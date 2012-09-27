@@ -1,0 +1,36 @@
+# These environment variables are mainly used by mcwrapper
+
+MINECRAFT_MOTD=A Minecraft Server
+
+# How long to wait in seconds after issuing a warning message
+# to players on the server and before actually shutting it down
+# Minimum is 1 (limitation of mcwrapper)
+MINECRAFT_SHUTDOWN_WARN=5
+
+# The user to run minecraft as
+MINECRAFT_USER=minecraft
+
+# The directory where minecraft will store it's files, including world directories
+MINECRAFT_HOME=/var/run/minecraft
+
+# Absolute path to minecraft_server.jar (or whatever you named it)
+JAR=/opt/minecraft/minecraft_server.jar
+
+# Path to mcwrapper (or whatever you named it)
+MC_WRAPPER=mcwrapper
+
+# Pidfile locations
+MC_WRAPPER_PID=/var/run/mcwrapper.pid
+MC_SERVER_PID=/var/run/minecraft.pid
+
+# Where to store backup files
+# Please note that backups are not implemented in the init script.
+# See the docs for mcwrapper for how to use this.
+MINECRAFT_BACKUP_DIR="${MINECRAFT_HOME}/backup"
+
+# The name of the world that should be backed up
+# Please note that backups are not implemented in the init script.
+# See the docs for mcwrapper for how to use this.
+MINECRAFT_WORLD=world
+
+# vi: ft=sh :

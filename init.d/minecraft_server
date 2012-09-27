@@ -1,0 +1,172 @@
+#!/usr/bin/env bash
+# minecraft_server Init script for running minecraft server
+#
+# Author:          Peter Schultz <schultz.peter@hotmail.com>
+#
+# chkconfig:       - 98 02
+#
+# description: Controls a minecraft server through mcwrapper (https://github.com/cfreak2399/MC-Wrapper)
+# processname: java
+# config: /etc/sysconfig/minecraft_server
+
+PATH=/usr/bin:/sbin:/bin:/usr/sbin
+
+NAME=$(basename $0)
+
+JAVA=java
+TAR=tar
+
+SYSTEMCTL_SKIP_REDIRECT=1
+. /etc/rc.d/init.d/functions
+
+[ -f /etc/sysconfig/$NAME ] && . /etc/sysconfig/$NAME
+
+[ -z "$MINECRAFT_USER" ] && MINECRAFT_USER=root
+[ -z "$MINECRAFT_SHUTDOWN_WARN" -o "$MINECRAFT_SHUTDOWN_WARN" = "0" ] && MINECRAFT_SHUTDOWN_WARN=1
+
+# these environment variables are mainly for mcwrapper
+export PATH JAVA TAR JAR
+export MC_WRAPPER_PID MC_SERVER_PID
+export MINECRAFT_HOME MINECRAFT_USER
+export MINECRAFT_BACKUP_DIR MINECRAFT_WORLD MINECRAFT_MOTD MINECRAFT_SHUTDOWN_WARN 
+
+RETVAL=0
+
+check_user_exists() {
+    if ! id "$MINECRAFT_USER" >/dev/null 2>&1; then
+        echo "user $MINECRAFT_USER does not exist" >&2
+        exit -1
+    fi
+}
+
+warn_if_root() {
+    [ "$MINECRAFT_USER" == "root" ] && echo "Warning: $NAME should not be run as root!" >&2
+}
+
+countdown() {
+    local t=$1
+
+    printf ".%.0s" $(seq $t)
+
+    for i in $(seq $t); do
+        sleep 1
+        echo -ne "\b \b";
+    done
+}
+
+status() {
+    [ -f "$MC_WRAPPER_PID" -a -f "$MC_SERVER_PID" ] \
+        && ps -p $(cat "$MC_WRAPPER_PID") >/dev/null \
+        && ps -p $(cat "$MC_SERVER_PID") >/dev/null
+
+    RETVAL=$?
+
+    case "$RETVAL" in
+        0)
+            echo "mcwrapper (pid  $(cat $MC_WRAPPER_PID)) is running..."
+            echo "$NAME (pid  $(cat $MC_SERVER_PID)) is running..."
+            ;;
+        *)
+            echo "$NAME is stopped"
+            ;;
+    esac
+    return $RETVAL
+}
+
+start() {
+    if status >/dev/null; then
+        RETVAL=0
+        return $RETVAL
+    fi
+
+    check_user_exists
+    warn_if_root
+
+    $MC_WRAPPER
+    sleep 1
+
+    status >/dev/null
+    RETVAL=$?
+
+    case "$RETVAL" in
+        0)
+            success
+            ;;
+        *)
+            failure
+            ;;
+    esac
+
+    return $RETVAL
+}
+
+stop() {
+    if ! status >/dev/null; then
+        RETVAL=0
+        return $RETVAL
+    fi
+
+    # mcwrapper sleeps 2 seconds after MINECRAFT_SHUTDOWN_WARN before killing the server,
+    # so we wait just a little bit longer before checking for success
+    local GRACE_PERIOD=$(($MINECRAFT_SHUTDOWN_WARN + 3))
+
+    kill -TERM $(cat "$MC_WRAPPER_PID")
+    if [ -t 1 ]; then
+        countdown $GRACE_PERIOD
+    else
+        sleep $GRACE_PERIOD
+    fi
+
+    status >/dev/null
+    RETVAL=$?
+
+    case "$RETVAL" in
+        0)
+            RETVAL=1
+            ;;
+        1)
+            rm -f "$MC_WRAPPER_PID" "$MC_SERVER_PID"
+            RETVAL=0
+            ;;
+        *)
+            RETVAL=2
+            ;;
+    esac
+
+    return $RETVAL
+}
+
+restart() {
+    stop
+    start
+
+    return $RETVAL
+}
+
+case "$1" in
+    start)
+        echo -n "Starting $NAME: "
+        start
+        [ "$RETVAL" = "0" ] && success || failure
+        echo 
+    ;;
+    stop)
+        echo -n "Stopping $NAME: "
+        stop
+        [ "$RETVAL" = "0" ] && success || failure
+        echo 
+    ;;
+    restart|force-reload)
+        stop
+        sleep 2
+        start
+    ;;
+    status)
+        status
+    ;;
+    *)
+        echo $"Usage: $0 {start|stop|status|restart|force-reload}"
+        exit 1
+esac
+
+exit $RETVAL
