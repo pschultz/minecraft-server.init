@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# minecraft_server Init script for running minecraft server
+# minecraft-server Init script for running minecraft server
 #
 # Author:          Peter Schultz <schultz.peter@hotmail.com>
 #
@@ -7,7 +7,7 @@
 #
 # description: Controls a minecraft server through mcwrapper (https://github.com/cfreak2399/MC-Wrapper)
 # processname: java
-# config: /etc/sysconfig/minecraft_server
+# config: /etc/sysconfig/minecraft-server
 
 NAME=$(basename $0)
 
@@ -25,7 +25,7 @@ SYSTEMCTL_SKIP_REDIRECT=1
 export PATH JAVA TAR JAR
 export MC_WRAPPER_PID MC_SERVER_PID
 export MINECRAFT_HOME MINECRAFT_USER
-export MINECRAFT_BACKUP_DIR MINECRAFT_WORLD MINECRAFT_MOTD MINECRAFT_SHUTDOWN_WARN 
+export MINECRAFT_BACKUP_DIR MINECRAFT_WORLD MINECRAFT_MOTD MINECRAFT_SHUTDOWN_WARN
 
 RETVAL=0
 
@@ -145,13 +145,13 @@ case "$1" in
         echo -n "Starting $NAME: "
         start
         [ "$RETVAL" = "0" ] && success || failure
-        echo 
+        echo
     ;;
     stop)
         echo -n "Stopping $NAME: "
         stop
         [ "$RETVAL" = "0" ] && success || failure
-        echo 
+        echo
     ;;
     restart|force-reload)
         stop
