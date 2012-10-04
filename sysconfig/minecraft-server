@@ -16,6 +16,9 @@ MINECRAFT_HOME=/var/run/minecraft
 # Absolute path to minecraft_server.jar (or whatever you named it)
 JAR=/opt/minecraft/minecraft_server.jar
 
+# Arguments to pass to java
+JVM_ARGS=-Xmx1024M -Xms1024M
+
 # Path to mcwrapper (or whatever you named it)
 MC_WRAPPER=mcwrapper
 
